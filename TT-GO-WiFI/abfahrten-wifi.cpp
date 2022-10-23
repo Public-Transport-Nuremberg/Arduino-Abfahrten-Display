@@ -79,7 +79,7 @@ void setup() {
   GPS.begin(9600, SERIAL_8N1, 34, 12);  //17-TX 18-RX
 
   // Set variable in VAG Class
-  vag.setTimespan(10); // List only departures in the next 10 minutes
+  vag.setTimespan(60); // List only departures in the next 10 minutes
 }
 
 static void smartDelay(unsigned long ms) {
@@ -162,11 +162,11 @@ void updateDisplayOverlay(bool UpdateDisplay) {
     if (VBAT > 4.00) {
       display.drawBitmap(112, -1, fillstate4_icon16x16, 16, 16, 1);
     } else if (VBAT > 3.72) {
-      display.drawBitmap(112, 0, fillstate3_icon16x16, 16, 16, 1);
+      display.drawBitmap(112, -1, fillstate3_icon16x16, 16, 16, 1);
     } else if (VBAT > 3.2) {
-      display.drawBitmap(112, 0, fillstate2_icon16x16, 16, 16, 1);
+      display.drawBitmap(112, -1, fillstate2_icon16x16, 16, 16, 1);
     } else {
-      display.drawBitmap(112, 0, fillstate1_icon16x16, 16, 16, 1);
+      display.drawBitmap(112, -1, fillstate1_icon16x16, 16, 16, 1);
     }
     // Draw Charge / Discharge
     if (axp.isChargeing()) {
@@ -207,7 +207,7 @@ void writeUmlaute(int x_start, int y_start, String text, int size = 1) {
   int letter = 0;
 
   for (std::string::size_type i = 0; i < text.length(); i++) {
-    if (x_start + (letter * 6) >= 128) { break; }
+    if (x_start + (letter * 6) >= SCREEN_WIDTH) { break; }
     display.setCursor(x_start + (letter * 6), y_start);
     int letter1 = (unsigned char)text[i];
     int letter2 = (unsigned char)text[i + 1];
@@ -261,7 +261,7 @@ void loop() {
     DynamicJsonDocument GPS_request(3072);
     DynamicJsonDocument Dep_request(4096);
 
-    DeserializationError error_GPS_request = deserializeJson(GPS_request, vag.getStopsGPS(49.45015694, 11.083455, 500));
+    DeserializationError error_GPS_request = deserializeJson(GPS_request, vag.getStopsGPS(gps.location.lat(), gps.location.lng(), 500));
 
     if (error_GPS_request) {
       Serial.print("deserializeJson() failed: ");
